@@ -1,0 +1,78 @@
+{
+    "name": "nrmis/audit-client",
+    "description": "A Laravel package for centralized audit logging in NRMIS microservices architecture",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "laravel",
+        "audit",
+        "logging",
+        "microservices",
+        "nrmis",
+        "compliance",
+        "tracking"
+    ],
+    "authors": [
+        {
+            "name": "NRMIS Development Team",
+            "email": "dev@nrmis.gov.kh",
+            "homepage": "https://nrmis.gov.kh",
+            "role": "Developer"
+        }
+    ],
+    "homepage": "https://github.com/nrmis/audit-client",
+    "support": {
+        "issues": "https://github.com/nrmis/audit-client/issues",
+        "source": "https://github.com/nrmis/audit-client",
+        "docs": "https://github.com/nrmis/audit-client#readme"
+    },
+    "require": {
+        "php": "^8.1",
+        "illuminate/support": "^10.0|^11.0",
+        "illuminate/http": "^10.0|^11.0",
+        "illuminate/database": "^10.0|^11.0",
+        "guzzlehttp/guzzle": "^7.0",
+        "ramsey/uuid": "^4.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0",
+        "orchestra/testbench": "^8.0|^9.0",
+        "mockery/mockery": "^1.5",
+        "phpstan/phpstan": "^1.10",
+        "friendsofphp/php-cs-fixer": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nrmis\\AuditClient\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Nrmis\\AuditClient\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Nrmis\\AuditClient\\AuditClientServiceProvider"
+            ],
+            "aliases": {
+                "AuditClient": "Nrmis\\AuditClient\\Facades\\AuditClient"
+            }
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
+        "analyse": "vendor/bin/phpstan analyse",
+        "format": "vendor/bin/php-cs-fixer fix"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true
+        }
+    }
+}
