@@ -2,35 +2,36 @@
 
 namespace Nrmis\AuditClient\Tests;
 
-use Nrmis\AuditClient\AuditClient;
-use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
+use Nrmis\AuditClient\AuditClient;
+use PHPUnit\Framework\TestCase;
 
 class AuditClientTest extends TestCase
 {
     private AuditClient $auditClient;
+
     private MockHandler $mockHandler;
 
     protected function setUp(): void
     {
-        $this->mockHandler = new MockHandler();
+        $this->mockHandler = new MockHandler;
         $handlerStack = HandlerStack::create($this->mockHandler);
-        
+
         // Mock HTTP client
         $httpClient = new Client(['handler' => $handlerStack]);
-        
+
         $this->auditClient = new AuditClient([
             'base_url' => 'http://test-audit-service/api/v1',
             'service_name' => 'test-service',
             'service_version' => '1.0.0',
             'environment' => 'testing',
             'async' => false, // Use sync for testing
-            'enabled' => true
+            'enabled' => true,
         ]);
 
         // Replace the HTTP client with our mock
@@ -45,13 +46,13 @@ class AuditClientTest extends TestCase
         $this->mockHandler->append(new Response(201, [], json_encode([
             'success' => true,
             'message' => 'Audit log created successfully',
-            'data' => ['id' => 1]
+            'data' => ['id' => 1],
         ])));
 
         $result = $this->auditClient->log([
             'event' => 'user_login',
             'user_id' => 123,
-            'severity' => 'info'
+            'severity' => 'info',
         ]);
 
         $this->assertTrue($result);
@@ -62,7 +63,7 @@ class AuditClientTest extends TestCase
         $this->mockHandler->append(new Response(201, [], json_encode([
             'success' => true,
             'message' => 'Audit log created successfully',
-            'data' => ['id' => 1]
+            'data' => ['id' => 1],
         ])));
 
         $result = $this->auditClient->logUserAction(
@@ -83,7 +84,7 @@ class AuditClientTest extends TestCase
         $this->mockHandler->append(new Response(201, [], json_encode([
             'success' => true,
             'message' => 'Audit log created successfully',
-            'data' => ['id' => 1]
+            'data' => ['id' => 1],
         ])));
 
         $result = $this->auditClient->logAuth(
@@ -102,7 +103,7 @@ class AuditClientTest extends TestCase
         $this->mockHandler->append(new Response(201, [], json_encode([
             'success' => true,
             'message' => 'Audit log created successfully',
-            'data' => ['id' => 1]
+            'data' => ['id' => 1],
         ])));
 
         $result = $this->auditClient->logSystem(
@@ -119,7 +120,7 @@ class AuditClientTest extends TestCase
         $this->mockHandler->append(new Response(201, [], json_encode([
             'success' => true,
             'message' => 'Audit log created successfully',
-            'data' => ['id' => 1]
+            'data' => ['id' => 1],
         ])));
 
         $result = $this->auditClient->logSecurity(
@@ -137,7 +138,7 @@ class AuditClientTest extends TestCase
         $this->mockHandler->append(new Response(201, [], json_encode([
             'success' => true,
             'message' => 'Audit log created successfully',
-            'data' => ['id' => 1]
+            'data' => ['id' => 1],
         ])));
 
         $result = $this->auditClient->logPerformance(
@@ -156,19 +157,19 @@ class AuditClientTest extends TestCase
             'message' => '2 audit logs created, 0 failed',
             'data' => [
                 'created' => [['id' => 1], ['id' => 2]],
-                'errors' => []
-            ]
+                'errors' => [],
+            ],
         ])));
 
         $audits = [
             [
                 'event' => 'user_created',
-                'user_id' => 1
+                'user_id' => 1,
             ],
             [
                 'event' => 'user_updated',
-                'user_id' => 1
-            ]
+                'user_id' => 1,
+            ],
         ];
 
         $result = $this->auditClient->logBatch($audits);
@@ -184,7 +185,7 @@ class AuditClientTest extends TestCase
             'status' => 'healthy',
             'service' => 'audit-logs',
             'timestamp' => '2023-01-01T00:00:00Z',
-            'version' => '1.0.0'
+            'version' => '1.0.0',
         ])));
 
         $health = $this->auditClient->healthCheck();
@@ -201,7 +202,7 @@ class AuditClientTest extends TestCase
         ));
 
         $result = $this->auditClient->log([
-            'event' => 'test_event'
+            'event' => 'test_event',
         ]);
 
         $this->assertFalse($result);
@@ -210,11 +211,11 @@ class AuditClientTest extends TestCase
     public function test_handles_server_errors_gracefully()
     {
         $this->mockHandler->append(new Response(500, [], json_encode([
-            'error' => 'Internal server error'
+            'error' => 'Internal server error',
         ])));
 
         $result = $this->auditClient->log([
-            'event' => 'test_event'
+            'event' => 'test_event',
         ]);
 
         $this->assertFalse($result);
@@ -223,9 +224,9 @@ class AuditClientTest extends TestCase
     public function test_can_set_correlation_id()
     {
         $correlationId = 'test-correlation-123';
-        
+
         $clientWithCorrelation = $this->auditClient->withCorrelation($correlationId);
-        
+
         $this->assertInstanceOf(AuditClient::class, $clientWithCorrelation);
         $this->assertNotSame($this->auditClient, $clientWithCorrelation);
     }
@@ -233,9 +234,9 @@ class AuditClientTest extends TestCase
     public function test_can_set_request_id()
     {
         $requestId = 'test-request-456';
-        
+
         $clientWithRequest = $this->auditClient->withRequest($requestId);
-        
+
         $this->assertInstanceOf(AuditClient::class, $clientWithRequest);
         $this->assertNotSame($this->auditClient, $clientWithRequest);
     }
@@ -243,9 +244,9 @@ class AuditClientTest extends TestCase
     public function test_can_set_session_id()
     {
         $sessionId = 'test-session-789';
-        
+
         $clientWithSession = $this->auditClient->withSession($sessionId);
-        
+
         $this->assertInstanceOf(AuditClient::class, $clientWithSession);
         $this->assertNotSame($this->auditClient, $clientWithSession);
     }
@@ -253,10 +254,10 @@ class AuditClientTest extends TestCase
     public function test_can_enable_disable_auditing()
     {
         $this->assertTrue($this->auditClient->isEnabled());
-        
+
         $disabledClient = $this->auditClient->enable(false);
         $this->assertFalse($disabledClient->isEnabled());
-        
+
         $enabledClient = $this->auditClient->enable(true);
         $this->assertTrue($enabledClient->isEnabled());
     }
@@ -264,25 +265,25 @@ class AuditClientTest extends TestCase
     public function test_disabled_client_skips_logging()
     {
         $disabledClient = $this->auditClient->enable(false);
-        
+
         $result = $disabledClient->log([
-            'event' => 'test_event'
+            'event' => 'test_event',
         ]);
-        
+
         $this->assertTrue($result); // Should return true but not send request
     }
 
     public function test_disabled_client_skips_batch_logging()
     {
         $disabledClient = $this->auditClient->enable(false);
-        
+
         $audits = [
             ['event' => 'test_event_1'],
-            ['event' => 'test_event_2']
+            ['event' => 'test_event_2'],
         ];
-        
+
         $result = $disabledClient->logBatch($audits);
-        
+
         $this->assertTrue($result['success']);
         $this->assertEquals(2, $result['created']);
         $this->assertEquals(0, $result['errors']);
@@ -291,7 +292,7 @@ class AuditClientTest extends TestCase
     public function test_get_config_returns_current_configuration()
     {
         $config = $this->auditClient->getConfig();
-        
+
         $this->assertEquals('http://test-audit-service/api/v1', $config['base_url']);
         $this->assertEquals('test-service', $config['service_name']);
         $this->assertEquals('1.0.0', $config['service_version']);
@@ -324,13 +325,13 @@ class AuditClientTest extends TestCase
             'message' => '1 audit logs created, 1 failed',
             'data' => [
                 'created' => [['id' => 1]],
-                'errors' => [['index' => 1, 'error' => 'Validation failed']]
-            ]
+                'errors' => [['index' => 1, 'error' => 'Validation failed']],
+            ],
         ])));
 
         $audits = [
             ['event' => 'valid_event'],
-            ['invalid' => 'data']
+            ['invalid' => 'data'],
         ];
 
         $result = $this->auditClient->logBatch($audits);
@@ -362,10 +363,10 @@ class AuditClientTest extends TestCase
 
         // Fast operation - should be info
         $this->auditClient->logPerformance('fast_query', 1.0);
-        
+
         // Slow operation - should be warning
         $this->auditClient->logPerformance('slow_query', 7.0);
-        
+
         // Very slow operation - should be error
         $this->auditClient->logPerformance('very_slow_query', 15.0);
 

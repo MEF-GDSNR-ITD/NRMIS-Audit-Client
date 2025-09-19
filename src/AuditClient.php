@@ -2,20 +2,27 @@
 
 namespace Nrmis\AuditClient;
 
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 
 class AuditClient
 {
     protected Client $httpClient;
+
     protected string $baseUrl;
+
     protected string $serviceName;
+
     protected string $serviceVersion;
+
     protected string $environment;
+
     protected bool $async;
+
     protected bool $enabled;
+
     protected array $defaultMetadata;
 
     public function __construct(array $config = [])
@@ -48,17 +55,17 @@ class AuditClient
      */
     public function log(array $data): bool
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             return true; // Silently skip if disabled
         }
 
         try {
             $auditData = $this->prepareAuditData($data);
-            
+
             if ($this->async) {
                 return $this->sendAsync($auditData);
             }
-            
+
             return $this->sendSync($auditData);
         } catch (\Exception $e) {
             Log::error('Failed to send audit log', [
@@ -66,7 +73,7 @@ class AuditClient
                 'data' => $data,
                 'service' => $this->serviceName,
             ]);
-            
+
             return false;
         }
     }
@@ -76,33 +83,33 @@ class AuditClient
      */
     public function logBatch(array $audits): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             return [
                 'success' => true,
                 'created' => count($audits),
                 'errors' => 0,
-                'details' => ['message' => 'Audit logging is disabled']
+                'details' => ['message' => 'Audit logging is disabled'],
             ];
         }
 
         $preparedAudits = [];
-        
+
         foreach ($audits as $audit) {
             $preparedAudits[] = $this->prepareAuditData($audit);
         }
 
         try {
             $response = $this->httpClient->post('/audits/batch', [
-                'json' => ['audits' => $preparedAudits]
+                'json' => ['audits' => $preparedAudits],
             ]);
 
             $result = json_decode($response->getBody()->getContents(), true);
-            
+
             return [
                 'success' => $result['success'] ?? false,
                 'created' => count($result['data']['created'] ?? []),
                 'errors' => count($result['data']['errors'] ?? []),
-                'details' => $result['data'] ?? []
+                'details' => $result['data'] ?? [],
             ];
         } catch (GuzzleException $e) {
             Log::error('Failed to send batch audit logs', [
@@ -110,12 +117,12 @@ class AuditClient
                 'count' => count($audits),
                 'service' => $this->serviceName,
             ]);
-            
+
             return [
                 'success' => false,
                 'created' => 0,
                 'errors' => count($audits),
-                'details' => ['error' => $e->getMessage()]
+                'details' => ['error' => $e->getMessage()],
             ];
         }
     }
@@ -126,9 +133,9 @@ class AuditClient
     public function logUserAction(
         string $action,
         int $userId,
-        string $userType = null,
-        array $oldValues = null,
-        array $newValues = null,
+        ?string $userType = null,
+        ?array $oldValues = null,
+        ?array $newValues = null,
         array $metadata = [],
         string $severity = 'info'
     ): bool {
@@ -149,8 +156,8 @@ class AuditClient
      */
     public function logAuth(
         string $event,
-        int $userId = null,
-        string $userType = null,
+        ?int $userId = null,
+        ?string $userType = null,
         bool $success = true,
         array $metadata = []
     ): bool {
@@ -162,7 +169,7 @@ class AuditClient
             'severity' => $success ? 'info' : 'warning',
             'metadata' => array_merge($metadata, [
                 'success' => $success,
-                'auth_event' => $event
+                'auth_event' => $event,
             ]),
         ]);
     }
@@ -180,7 +187,7 @@ class AuditClient
             'action_type' => 'SYSTEM',
             'severity' => $severity,
             'metadata' => array_merge($metadata, [
-                'system_event' => $event
+                'system_event' => $event,
             ]),
         ]);
     }
@@ -190,8 +197,8 @@ class AuditClient
      */
     public function logSecurity(
         string $event,
-        int $userId = null,
-        string $threat = null,
+        ?int $userId = null,
+        ?string $threat = null,
         array $metadata = []
     ): bool {
         return $this->log([
@@ -201,7 +208,7 @@ class AuditClient
             'severity' => 'warning',
             'metadata' => array_merge($metadata, [
                 'security_event' => $event,
-                'threat_type' => $threat
+                'threat_type' => $threat,
             ]),
         ]);
     }
@@ -228,7 +235,7 @@ class AuditClient
             'metadata' => array_merge($metadata, [
                 'operation' => $operation,
                 'duration_seconds' => $duration,
-                'performance_event' => true
+                'performance_event' => true,
             ]),
         ]);
     }
@@ -240,6 +247,7 @@ class AuditClient
     {
         $clone = clone $this;
         $clone->defaultMetadata['correlation_id'] = $correlationId;
+
         return $clone;
     }
 
@@ -250,6 +258,7 @@ class AuditClient
     {
         $clone = clone $this;
         $clone->defaultMetadata['request_id'] = $requestId;
+
         return $clone;
     }
 
@@ -260,6 +269,7 @@ class AuditClient
     {
         $clone = clone $this;
         $clone->defaultMetadata['session_id'] = $sessionId;
+
         return $clone;
     }
 
@@ -269,6 +279,7 @@ class AuditClient
     public function enable(bool $enabled = true): self
     {
         $this->enabled = $enabled;
+
         return $this;
     }
 
@@ -303,7 +314,7 @@ class AuditClient
     {
         // Get request context if available
         $request = request();
-        
+
         return array_merge([
             'service_name' => $this->serviceName,
             'service_version' => $this->serviceVersion,
@@ -323,7 +334,7 @@ class AuditClient
     {
         try {
             $response = $this->httpClient->post('/audits', [
-                'json' => $data
+                'json' => $data,
             ]);
 
             return $response->getStatusCode() === 201;
@@ -332,7 +343,7 @@ class AuditClient
                 'error' => $e->getMessage(),
                 'service' => $this->serviceName,
             ]);
-            
+
             return false;
         }
     }
@@ -346,7 +357,7 @@ class AuditClient
             // For now, we'll use a simple async approach
             // In production, you might want to use Laravel Horizon or a proper queue
             $promise = $this->httpClient->postAsync('/audits', [
-                'json' => $data
+                'json' => $data,
             ]);
 
             // Don't wait for the response in async mode
@@ -356,7 +367,7 @@ class AuditClient
                 'error' => $e->getMessage(),
                 'service' => $this->serviceName,
             ]);
-            
+
             return false;
         }
     }
@@ -369,7 +380,7 @@ class AuditClient
         try {
             $response = $this->httpClient->get('/health');
             $data = json_decode($response->getBody()->getContents(), true);
-            
+
             return [
                 'healthy' => $response->getStatusCode() === 200,
                 'service' => $data['service'] ?? 'unknown',
@@ -379,7 +390,7 @@ class AuditClient
         } catch (GuzzleException $e) {
             return [
                 'healthy' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ];
         }
     }

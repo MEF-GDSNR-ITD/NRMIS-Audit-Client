@@ -2,8 +2,8 @@
 
 namespace Nrmis\AuditClient\Traits;
 
-use Nrmis\AuditClient\Facades\AuditClient;
 use Illuminate\Support\Str;
+use Nrmis\AuditClient\Facades\AuditClient;
 
 trait Auditable
 {
@@ -30,7 +30,7 @@ trait Auditable
      */
     public function auditEvent(string $event, array $metadata = []): bool
     {
-        if (!config('audit-client.enabled', true)) {
+        if (! config('audit-client.enabled', true)) {
             return true;
         }
 
@@ -40,10 +40,10 @@ trait Auditable
         if ($event === 'updated' && $this->wasChanged()) {
             $oldValues = [];
             $newValues = [];
-            
+
             foreach ($this->getChanges() as $key => $newValue) {
-                if (in_array($key, $this->getAuditableAttributes()) && 
-                    !in_array($key, $this->getAuditExclude())) {
+                if (in_array($key, $this->getAuditableAttributes()) &&
+                    ! in_array($key, $this->getAuditExclude())) {
                     $newValues[$key] = $newValue;
                     $oldValues[$key] = $this->getOriginal($key);
                 }
@@ -108,8 +108,8 @@ trait Auditable
      */
     protected function getAuditExclude(): array
     {
-        return property_exists($this, 'auditExclude') 
-            ? $this->auditExclude 
+        return property_exists($this, 'auditExclude')
+            ? $this->auditExclude
             : ['password', 'remember_token', 'created_at', 'updated_at'];
     }
 
@@ -118,11 +118,11 @@ trait Auditable
      */
     public function logAuditEvent(
         string $event,
-        array $oldValues = null,
-        array $newValues = null,
+        ?array $oldValues = null,
+        ?array $newValues = null,
         array $metadata = []
     ): bool {
-        if (!config('audit-client.enabled', true)) {
+        if (! config('audit-client.enabled', true)) {
             return true;
         }
 
@@ -148,7 +148,7 @@ trait Auditable
     {
         $originalEnabled = config('audit-client.enabled');
         config(['audit-client.enabled' => false]);
-        
+
         try {
             return $callback($this);
         } finally {
