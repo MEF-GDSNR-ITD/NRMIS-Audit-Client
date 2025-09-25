@@ -46,7 +46,7 @@ Add these environment variables to your `.env` file:
 
 ```env
 # Audit Service Configuration
-AUDIT_SERVICE_URL=http://audit-service:8080/api/v1
+AUDIT_SERVICE_URL=http://audit-service:7777/api/v1
 AUDIT_SERVICE_NAME=your-service-name
 AUDIT_SERVICE_VERSION=1.0.0
 AUDIT_ENVIRONMENT=production
@@ -66,7 +66,7 @@ The configuration file allows you to customize various aspects of the audit clie
 
 ```php
 return [
-    'base_url' => env('AUDIT_SERVICE_URL', 'http://audit-service:8080/api/v1'),
+    'base_url' => env('AUDIT_SERVICE_URL', 'http://audit-service:7777/api/v1'),
     'service_name' => env('AUDIT_SERVICE_NAME', config('app.name')),
     'service_version' => env('AUDIT_SERVICE_VERSION', '1.0.0'),
     'environment' => env('AUDIT_ENVIRONMENT', config('app.env')),
@@ -375,7 +375,7 @@ class User extends Model
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `base_url` | `http://audit-service:8080/api/v1` | Audit service API URL |
+| `base_url` | `http://audit-service:7777/api/v1` | Audit service API URL |
 | `service_name` | `config('app.name')` | Name of your service |
 | `service_version` | `1.0.0` | Version of your service |
 | `environment` | `config('app.env')` | Environment (production, staging, etc.) |

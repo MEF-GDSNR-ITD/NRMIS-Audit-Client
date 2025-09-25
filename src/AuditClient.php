@@ -27,7 +27,7 @@ class AuditClient
 
     public function __construct(array $config = [])
     {
-        $this->baseUrl = $config['base_url'] ?? config('audit-client.base_url', 'http://audit-service:8080/api/v1');
+        $this->baseUrl = $config['base_url'] ?? config('audit-client.base_url', 'http://audit-service:7777/api/v1');
         $this->serviceName = $config['service_name'] ?? config('audit-client.service_name', config('app.name', 'unknown-service'));
         $this->serviceVersion = $config['service_version'] ?? config('audit-client.service_version', '1.0.0');
         $this->environment = $config['environment'] ?? config('audit-client.environment', config('app.env', 'production'));
