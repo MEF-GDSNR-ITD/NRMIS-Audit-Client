@@ -11,7 +11,7 @@ return [
     */
 
     // Base URL of the audit service
-    'base_url' => env('AUDIT_SERVICE_URL', 'http://audit-service:8080/api/v1'),
+    'base_url' => env('AUDIT_SERVICE_URL', 'http://audit-service:7777/api/v1'),
 
     // Service identification
     'service_name' => env('AUDIT_SERVICE_NAME', config('app.name', 'unknown-service')),
