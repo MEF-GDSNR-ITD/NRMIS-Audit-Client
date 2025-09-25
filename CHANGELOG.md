@@ -2,6 +2,19 @@
 
 All notable changes to `nrmis/audit-client` will be documented in this file.
 
+## 1.1.0 - 2024-12-19
+
+### Added
+- Laravel 12 support
+- Updated composer constraints to support Laravel 10, 11, and 12
+- Updated testbench dependency for Laravel 12 testing
+
+### Changed
+- `illuminate/support`: `^10.0|^11.0` → `^10.0|^11.0|^12.0`
+- `illuminate/http`: `^10.0|^11.0` → `^10.0|^11.0|^12.0`
+- `illuminate/database`: `^10.0|^11.0` → `^10.0|^11.0|^12.0`
+- `orchestra/testbench`: `^8.0|^9.0` → `^8.0|^9.0|^10.0`
+
 ## 1.0.0 - 2024-09-19
 
 ### Added
